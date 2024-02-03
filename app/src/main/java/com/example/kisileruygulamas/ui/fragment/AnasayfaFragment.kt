@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.SearchView.OnQueryTextListener
 
 import androidx.appcompat.widget.SearchView
+import androidx.databinding.DataBindingUtil
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -22,10 +23,12 @@ class AnasayfaFragment : Fragment() {
     private lateinit var binding: FragmentAnasayfaBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentAnasayfaBinding.inflate(inflater, container, false)
+        binding = DataBindingUtil.inflate(inflater,R.layout.fragment_anasayfa ,container, false)
+        binding.anasayfaFragment = this
 
-        binding.rv.layoutManager = LinearLayoutManager(requireContext())
-        binding.toolbarAnasayfa.title = "Kişiler"
+
+        binding.anasayfaToolbarBaslik = "Kişiler"
+
         val kisilerListesi = ArrayList<Kisiler>()
         val k1 = Kisiler(1,"Ahmet","1111")
         val k2 = Kisiler(2,"Mehmet","2222")
@@ -39,12 +42,10 @@ class AnasayfaFragment : Fragment() {
 
         val kisilerAdapter = KisilerAdapter(requireContext(),kisilerListesi)
 
-        binding.rv.adapter = kisilerAdapter
+        binding.kisilerAdapter = kisilerAdapter
 
 
-        binding.fab.setOnClickListener {
-            Navigation.findNavController(it).navigate(R.id.kisiKayitFragment)// it yerine binding.fab yazılabilr
-        }
+
         binding.searchView.setOnQueryTextListener(object : OnQueryTextListener{
             override fun onQueryTextChange(newText: String): Boolean {
                 ara(newText)
@@ -60,9 +61,11 @@ class AnasayfaFragment : Fragment() {
 
 
         return binding.root
-
     }
     fun ara(aramaKelimesi: String){
         Log.e("Kişi Ara",aramaKelimesi)
+    }
+    fun fabTikla(it:View){
+        Navigation.findNavController(it).navigate(R.id.kisiKayitFragment)
     }
 }
