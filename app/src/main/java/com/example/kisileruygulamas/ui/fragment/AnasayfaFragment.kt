@@ -10,6 +10,7 @@ import android.widget.SearchView.OnQueryTextListener
 
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.viewModels
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -17,43 +18,37 @@ import com.example.kisileruygulamas.R
 import com.example.kisileruygulamas.data.entity.Kisiler
 import com.example.kisileruygulamas.databinding.FragmentAnasayfaBinding
 import com.example.kisileruygulamas.ui.adapter.KisilerAdapter
+import com.example.kisileruygulamas.ui.viewmodel.AnasayfaViewModel
+import com.example.kisileruygulamas.ui.viewmodel.KisiKayitViewModel
 
 class AnasayfaFragment : Fragment() {
 
     private lateinit var binding: FragmentAnasayfaBinding
+    private lateinit var viewModel: AnasayfaViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_anasayfa ,container, false)
         binding.anasayfaFragment = this
-
-
         binding.anasayfaToolbarBaslik = "Kişiler"
 
-        val kisilerListesi = ArrayList<Kisiler>()
-        val k1 = Kisiler(1,"Ahmet","1111")
-        val k2 = Kisiler(2,"Mehmet","2222")
-        val k3 = Kisiler(3,"Ayşe","3333")
-        val k4 = Kisiler(4,"Fatma","4444")
+      viewModel.kisilerListesi.observe(viewLifecycleOwner){
+          val kisilerAdapter = KisilerAdapter(requireContext(),it,viewModel)
 
-        kisilerListesi.add(k1)
-        kisilerListesi.add(k2)
-        kisilerListesi.add(k3)
-        kisilerListesi.add(k4)
+          binding.kisilerAdapter = kisilerAdapter
+      }
 
-        val kisilerAdapter = KisilerAdapter(requireContext(),kisilerListesi)
 
-        binding.kisilerAdapter = kisilerAdapter
 
 
 
         binding.searchView.setOnQueryTextListener(object : OnQueryTextListener{
             override fun onQueryTextChange(newText: String): Boolean {
-                ara(newText)
+                viewModel.ara(newText)
                 return true
             }
 
             override fun onQueryTextSubmit(query: String): Boolean {
-                ara(query)
+                viewModel.ara(query)
                 return true
             }
         })
@@ -62,10 +57,19 @@ class AnasayfaFragment : Fragment() {
 
         return binding.root
     }
-    fun ara(aramaKelimesi: String){
-        Log.e("Kişi Ara",aramaKelimesi)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val tempViewModel: AnasayfaViewModel by viewModels()
+        viewModel = tempViewModel
     }
+
     fun fabTikla(it:View){
         Navigation.findNavController(it).navigate(R.id.kisiKayitFragment)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.kisileriYukle()
     }
 }
